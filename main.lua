@@ -26,10 +26,14 @@ enemies = {} -- array of current enemies on screen
 isAlive = true
 score = 0
 
+
+
 function love.load(arg)
  player.img = love.graphics.newImage('assets/Aircraft_01.png')
  bulletImg = love.graphics.newImage('assets/bullet_2_blue.png')
  enemyImg = love.graphics.newImage('assets/Aircraft_09.png')
+ bulletSnd = love.audio.newSource("assets/gun-sound.wav", "static")
+ impactSnd = love.audio.newSource("assets/impact.wav", "static")
 end
 
 function love.update(dt)
@@ -47,7 +51,7 @@ function love.update(dt)
 			player.x = player.x + (player.speed*dt)
 		end
 	end
-
+if isAlive then
 	-- Time out how far apart our shots can be.
 	canShootTimer = canShootTimer - (1 * dt)
 	if canShootTimer < 0 then
@@ -60,6 +64,7 @@ function love.update(dt)
 		table.insert(bullets, newBullet)
 		canShoot = false
 		canShootTimer = canShootTimerMax
+    bulletSnd:play()
 	end
 	-- update the positions of bullets
 	for i, bullet in ipairs(bullets) do
@@ -70,7 +75,7 @@ function love.update(dt)
 		end
 	end
 
-  if isAlive then
+
   	-- Time out enemy creation
   	createEnemyTimer = createEnemyTimer - (1 * dt)
   	if createEnemyTimer < 0 then
@@ -97,6 +102,7 @@ function love.update(dt)
   		if CheckCollision(enemy.x, enemy.y, enemy.img:getWidth(), enemy.img:getHeight(), bullet.x, bullet.y, bullet.img:getWidth(), bullet.img:getHeight()) then
   			table.remove(bullets, j)
   			table.remove(enemies, i)
+        impactSnd:play()
   			score = score + 1
   		end
   	end
@@ -143,6 +149,9 @@ function love.draw(dt)
 	for i, enemy in ipairs(enemies) do
 		love.graphics.draw(enemy.img, enemy.x, enemy.y)
 	end
+
+  love.graphics.setColor(255, 255, 255)
+  love.graphics.print("SCORE: " .. tostring(score), 400, 10)
 end
 
 
